@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d19">
+  <title>多AI聊天平台</title>
+  <meta name="description" content="配置多个讨论成员，围绕一个问题轮流讨论。">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">◈</span><div><strong>多AI聊天平台</strong></div></div>
+      <button class="new-button" id="newButton" type="button"><span>＋</span> 新建讨论</button>
+      <div class="side-heading"><span>讨论记录</span><span id="historyCount">0</span></div>
+      <div class="history" id="history" aria-label="讨论记录"></div>
+      <div class="side-bottom"><div class="local-dot"></div><span>仅在本机运行 · 自动保存</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-actions"><div class="discussion-export hidden" id="discussionExport"><button id="exportButton" class="outline-button" type="button">导出 Markdown</button><button id="exportPdfButton" class="outline-button" type="button">导出 PDF</button></div><button class="icon-button mobile-history" id="historyButton" type="button">记录</button></div>
+      </header>
+
+      <section class="hero" id="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-content">
+          <h1>一个问题，<em>多种视角。</em></h1>
+          <p class="hero-copy">添加讨论成员后，他们将依次发言，围绕你的问题展开讨论。</p>
+          <div class="group-builder">
+            <section class="member-panel" aria-labelledby="memberPanelTitle">
+              <div class="panel-head"><h2 id="memberPanelTitle">成员列表</h2><button id="addHomeMember" class="panel-add-button" type="button">＋ 添加成员</button></div>
+              <div class="panel-cards" id="agentRow"></div>
+            </section>
+            <section class="group-panel" id="groupDropZone" aria-labelledby="groupPanelTitle">
+              <div class="panel-head"><h2 id="groupPanelTitle">讨论组</h2><span id="groupCount" class="group-count">0 位成员</span></div>
+              <div class="panel-cards" id="groupMembers"></div>
+              <p id="groupHint" class="group-hint">将左侧成员拖到这里</p>
+            </section>
+          </div>
+          <p class="setup-hint" id="setupHint"></p></div>
+        <div class="ask-panel">
+          <div class="ask-heading"><label for="question">你想让他们讨论什么？</label><label class="round-picker" for="rounds">讨论轮数 <select id="rounds"><option value="1">1 轮</option><option value="2">2 轮</option><option value="3">3 轮</option><option value="4">4 轮</option><option value="5" selected>5 轮</option><option value="6">6 轮</option><option value="7">7 轮</option><option value="8">8 轮</option><option value="9">9 轮</option><option value="10">10 轮</option></select></label></div>
+          <textarea id="question" maxlength="2000" placeholder="例如：一家小团队应该优先开发手机应用，还是先做网页产品？"></textarea>
+          <div class="ask-footer"><span id="requestHint">真实调用接口 · 5 轮 · 会消耗额度 · 自动保存</span><button class="primary-button" id="startButton" type="button">开始讨论 <span>↗</span></button></div>
+        </div>
+      </section>
+
+      <section class="discussion hidden" id="discussion">
+        <div class="discussion-head"><div><h2 id="discussionQuestion"></h2><div class="discussion-sub" id="discussionSub"></div><div class="participant-strip"><span class="participant-caption">讨论成员</span><div id="participantAvatars" class="participant-avatars"></div></div></div></div>
+        <div id="discussionStream" class="discussion-stream"><div id="messages" class="messages"></div><div id="statusPanel" class="status-panel hidden"></div></div>
+        <div id="followupComposer" class="followup-composer"><label for="followupMessage">继续讨论 · 告诉成员下一步该讨论什么</label><textarea id="followupMessage" maxlength="2000" placeholder="例如：请结合刚才的分歧，重点讨论实施成本，并提出更具体的方案。"></textarea><div class="followup-footer"><label for="followupRounds">追加轮数 <select id="followupRounds"><option value="1" selected>1 轮</option><option value="2">2 轮</option><option value="3">3 轮</option><option value="4">4 轮</option><option value="5">5 轮</option><option value="6">6 轮</option><option value="7">7 轮</option><option value="8">8 轮</option><option value="9">9 轮</option><option value="10">10 轮</option></select></label><span id="followupHint"></span><div class="composer-actions"><div class="discussion-controls"><button id="pauseButton" class="outline-button" type="button">暂停</button><button id="stopButton" class="outline-button danger" type="button">停止</button></div><button id="followupButton" class="primary-button" type="button">发送并继续讨论 ↗</button></div></div></div>
+      </section>
+    </main>
+  </div>
+
+  <main id="printReport" class="markdown-content" aria-hidden="true"></main>
+  <dialog id="manageDialog" class="settings-dialog"><div class="dialog-head"><div><h2 id="manageTitle">新增成员</h2></div><button class="dialog-close" id="closeManage" aria-label="关闭成员编辑" type="button">×</button></div><div class="manage-editor" id="manageEditor"><div class="setting-grid" id="editorFields"></div><div class="editor-actions"><button class="outline-button danger hidden" id="deleteEditor" type="button">删除成员</button><button class="outline-button" id="cancelEditor" type="button">取消</button><button class="primary-button" id="saveEditor" type="button">保存</button></div></div></dialog>
+  <dialog id="participantDialog" class="participant-dialog"><h3 id="participantDialogTitle">选择讨论成员</h3><p>选择已配置密钥的成员。当前阶段的发言顺序不会改变。</p><select id="participantSelect" aria-label="选择讨论成员"></select><div class="participant-dialog-actions"><button id="participantNewConnection" class="outline-button" type="button">新增成员</button><button id="participantEditConnection" class="outline-button" type="button">编辑此成员</button><button id="participantCancel" class="outline-button" type="button">取消</button><button id="participantSave" class="primary-button" type="button">保存</button></div></dialog>
+  <div id="historyMenu" class="history-menu hidden" role="menu" aria-label="讨论记录操作"><button id="deleteHistoryItem" class="history-menu-delete" type="button" role="menuitem">删除讨论记录</button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
