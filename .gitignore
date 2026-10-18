@@ -1,0 +1,22 @@
+# Private runtime data and credentials
+APIkey.txt
+**/APIkey.txt
+**/data/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build outputs and downloaded runtimes
+dist/
+**/runtime/
+node_modules/
+*.exe
+*.zip
+*.log
+*.tmp
+backups/
+资料归档*
+.DS_Store
+Thumbs.db
